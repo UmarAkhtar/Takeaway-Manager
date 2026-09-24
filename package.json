@@ -1,0 +1,21 @@
+{
+  "name": "takeaway-manager",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Takeaway frontend and menu manager created using HTML, CSS, React, Node.js, SQL and Express.js",
+  "homepage": "https://github.com/UmarAkhtar/Takeaway-Manager#readme",
+  "bugs": {
+    "url": "https://github.com/UmarAkhtar/Takeaway-Manager/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UmarAkhtar/Takeaway-Manager.git"
+  },
+  "license": "ISC",
+  "author": "Umar Akhtar",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}

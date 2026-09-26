@@ -14,7 +14,7 @@ app.get('/api/health', (req, res) => {
 
 
 app.get('/api/menu', (req, res) => {
-    const rows = db.prepare('SELECT * FROM menu_items').all();
+    const rows = db.prepare('SELECT * FROM menu_items WHERE active = 1').all();
     res.json(rows)
 })
 

@@ -13,15 +13,18 @@ app.get('/api/health', (req, res) => {
 
 
 
-app.get('/menu', (req, res) => {
+app.get('/api/menu', (req, res) => {
     const rows = db.prepare('SELECT * FROM menu_items').all();
     res.json(rows)
 })
 
-app.get('/menu/:id', (req, res) => {
+app.get('/api/menu/:id', (req, res) => {
     const id = Number(req.params.id)
-    const rows = db.prepare('SELECT * FROM menu_items WHERE id = ?').get(id);
-    res.json(rows)
+    const item = db.prepare('SELECT * FROM menu_items WHERE id = ?').get(id);
+    if(!item){
+        return res.status(404).json({error: 'Menu item does not exist'});
+    }
+    res.json(item)
 })
 
 app.listen(3000, () => {

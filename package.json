@@ -18,7 +18,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server/server.js",
-    "dev": "node --watch server/server.js"
+    "dev:server": "node --watch server/server.js",
+    "dev:client": "vite"
   },
   "dependencies": {
     "express": "^5.2.1",

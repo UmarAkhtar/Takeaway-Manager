@@ -27,6 +27,11 @@ app.get('/api/menu/:id', (req, res) => {
     res.json(item)
 })
 
+app.get('/api/categories', (req, res) => {
+    const categories = db.prepare('SELECT * FROM categories').all();
+    res.json(categories)
+})
+
 app.listen(3000, () => {
    console.log('the server is running')
 })

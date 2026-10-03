@@ -7,7 +7,7 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 
-const {getMenuItems, getMenuItem, getCategories, addMenuItem} = require('./db.js')
+const {getMenuItems, getMenuItem, getCategories, addMenuItem, getCategory} = require('./db.js')
 
 
 app.get('/api/health', (req, res) => {
@@ -27,8 +27,8 @@ if (!Number.isInteger(pricePence) || pricePence <= 0) {
     return res.status(400).json({ error: 'Price is required and must be an integer and positive' });
 }
 
-if (!Number.isInteger(categoryId)) {
-    return res.status(400).json({ error: 'Category ID is required and must be an integer' });
+if (!Number.isInteger(categoryId) || !getCategory(categoryId)) {
+    return res.status(400).json({ error: 'Category ID is required and must be a valid category ID' });
 }
 
     const newItem = addMenuItem(name.trim(), pricePence, categoryId);

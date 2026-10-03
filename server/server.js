@@ -7,7 +7,7 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 
-const {getMenuItems, getMenuItem, getCategories, addMenuItem, getCategory} = require('./db.js')
+const {getMenuItems, getMenuItem, getCategories, addMenuItem, getCategory, updateMenuItemPrice} = require('./db.js')
 
 
 app.get('/api/health', (req, res) => {
@@ -34,6 +34,23 @@ if (!Number.isInteger(categoryId) || !getCategory(categoryId)) {
     const newItem = addMenuItem(name.trim(), pricePence, categoryId);
     res.status(201).json(newItem);
 })
+
+app.patch('/api/menu/:id', (req, res) => {
+const id = Number(req.params.id);
+const { pricePence } = req.body;
+
+if (!getMenuItem(id)) {
+    return res.status(404).json({ error: 'Menu item does not exist' });
+}
+
+if (!Number.isInteger(pricePence) || pricePence <= 0) {
+    return res.status(400).json({ error: 'Price is required and must be an integer and positive' });
+}
+
+const updatedItem = updateMenuItemPrice(id, pricePence);
+res.json(updatedItem);
+})
+
 
 
 

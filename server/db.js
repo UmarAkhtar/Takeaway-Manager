@@ -25,7 +25,10 @@ function addMenuItem(name, pricePence, categoryId) {
     return getMenuItem(result.lastInsertRowid);
 }
 
-
+function updateMenuItemPrice(id, pricePence) {
+    db.prepare('UPDATE menu_items SET price_pence = ? WHERE id = ?').run(pricePence, id);
+    return getMenuItem(id);
+}
 
 module.exports = {
     getMenuItems,
@@ -33,5 +36,6 @@ module.exports = {
     getCategories,
     db,
     addMenuItem, 
-    getCategory
+    getCategory,
+    updateMenuItemPrice
 };

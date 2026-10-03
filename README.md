@@ -3,7 +3,7 @@
 
 A Takeaway menu and management app based on my experience managing a takeaway.
 
-**Live demo:** https://takeaway-maanger.onrender.com
+**Live demo:** https://takeaway-manager.onrender.com
 
 *Hosted on Render's free tier, so the first load can take about a minute while the server wakes up.*
 
@@ -23,7 +23,7 @@ A Takeaway menu and management app based on my experience managing a takeaway.
 - Node.js + Express
 - SQLite
 - Github Actions for CI
-- Render for hostinghttp://localhost:5173
+- Render for hosting
 
 ## Running it locally
 

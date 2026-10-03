@@ -1,5 +1,10 @@
 const express = require('express')
 const app = express()
+const path = require('node:path');
+
+app.use(express.static(path.join(__dirname, '..', 'dist')));
+
+const PORT = process.env.PORT || 3000;
 
 const {getMenuItems, getMenuItem, getCategories} = require('./db.js')
 
@@ -29,6 +34,6 @@ app.get('/api/categories', (req, res) => {
     res.json(getCategories())
 })
 
-app.listen(3000, () => {
-   console.log('the server is running')
+app.listen(PORT, () => {
+   console.log(`Server running on port ${PORT}`);
 })

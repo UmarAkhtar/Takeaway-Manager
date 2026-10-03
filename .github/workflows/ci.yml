@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the React app
+        run: npm run build
+
+      - name: Check the server starts and /api/health answers
+        run: |
+          npm start &
+          for i in $(seq 1 10); do
+            if curl -sf http://localhost:3000/api/health | grep -q '"status":"ok"'; then
+              echo "Health check passed"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Server did not answer /api/health within 10 seconds"
+          exit 1

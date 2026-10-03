@@ -1,5 +1,6 @@
 import CategoryTabs from './CategoryTabs.jsx';
 import MenuList from './MenuList.jsx';
+import AddItemForm from './AddItemForm.jsx';
 import { useState, useEffect } from 'react';
 
 
@@ -31,6 +32,10 @@ return(
       onSelectCategory={setSelectedCategory}
     />
     <MenuList items={visibleItems} />
+    <AddItemForm
+  categories={categories}
+  onItemAdded={(newItem) => setMenu([...menu, newItem])}
+/>
   </div>
 );
 }

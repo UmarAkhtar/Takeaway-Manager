@@ -1,8 +1,7 @@
 const express = require('express')
 const app = express()
 
-const { DatabaseSync } = require('node:sqlite');
-const db = new DatabaseSync('practice.db');
+const {getMenuItems, getMenuItem, getCategories} = require('./db.js')
 
 
 app.get('/api/health', (req, res) => {
@@ -14,13 +13,12 @@ app.get('/api/health', (req, res) => {
 
 
 app.get('/api/menu', (req, res) => {
-    const rows = db.prepare('SELECT * FROM menu_items WHERE active = 1').all();
-    res.json(rows)
+    res.json(getMenuItems())
 })
 
 app.get('/api/menu/:id', (req, res) => {
     const id = Number(req.params.id)
-    const item = db.prepare('SELECT * FROM menu_items WHERE id = ?').get(id);
+    const item = getMenuItem(id);
     if(!item){
         return res.status(404).json({error: 'Menu item does not exist'});
     }
@@ -28,8 +26,7 @@ app.get('/api/menu/:id', (req, res) => {
 })
 
 app.get('/api/categories', (req, res) => {
-    const categories = db.prepare('SELECT * FROM categories').all();
-    res.json(categories)
+    res.json(getCategories())
 })
 
 app.listen(3000, () => {

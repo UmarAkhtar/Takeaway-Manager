@@ -20,7 +20,8 @@
     "start": "node server/server.js",
     "dev:server": "node --watch server/server.js",
     "dev:client": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "seed": "node server/seed.js"
   },
   "engines": {
     "node": ">=24"

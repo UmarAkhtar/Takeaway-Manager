@@ -15,10 +15,18 @@ function getCategories() {
     return db.prepare('SELECT * FROM categories').all();
 }
 
+function addMenuItem(name, pricePence, categoryId) {
+    const result = db.prepare('INSERT INTO menu_items (name, price_pence, category_id) VALUES (?, ?, ?)').run(name, pricePence, categoryId);
+
+    return getMenuItem(result.lastInsertRowid);
+}
+
+
 
 module.exports = {
     getMenuItems,
     getMenuItem,
     getCategories,
-    db
+    db,
+    addMenuItem
 };

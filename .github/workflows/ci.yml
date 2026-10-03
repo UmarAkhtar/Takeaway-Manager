@@ -40,3 +40,9 @@ jobs:
           done
           echo "Server did not answer /api/health within 10 seconds"
           exit 1
+          
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Run browser tests
+        run: npm run test:e2e

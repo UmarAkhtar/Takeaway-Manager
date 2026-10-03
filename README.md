@@ -43,14 +43,10 @@ You'll need [Node.js](https://nodejs.org/) 24 or newer.
    npm run seed
    ```
 
-3. Start the server and the frontend in two separate terminals:
+3. Start the server and the frontend together:
 
    ```bash
-   npm run dev:server
-   ```
-
-   ```bash
-   npm run dev:client
+   npm run dev
    ```
 
 4. Open [http://localhost:5173](http://localhost:5173) in your browser.

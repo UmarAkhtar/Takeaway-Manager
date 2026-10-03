@@ -31,7 +31,12 @@ return(
       selectedCategory={selectedCategory}
       onSelectCategory={setSelectedCategory}
     />
-    <MenuList items={visibleItems} />
+  <MenuList
+      items={visibleItems}
+      onPriceUpdated={(updatedItem) =>
+        setMenu(menu.map((item) => (item.id === updatedItem.id ? updatedItem : item)))
+      }
+    />
     <AddItemForm
   categories={categories}
   onItemAdded={(newItem) => setMenu([...menu, newItem])}

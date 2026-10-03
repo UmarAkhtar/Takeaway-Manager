@@ -1,14 +1,15 @@
-import { formatPrice } from '../lib/money.js';
+import MenuItemRow from './MenuItemForm.jsx';
 
-export default function MenuList({items}) {
-    return (
+export default function MenuList({ items, onPriceUpdated }) {
+  return (
     <ul className="menu-list">
-          {items.map((item) => (
-            <li key={item.id} className="menu-item">
-              <span className="menu-item-name">{item.name}</span>
-              <span className="menu-item-price">{formatPrice(item.price_pence)}</span>
-            </li>
-            ))}
-        </ul>
-    );
+      {items.map((item) => (
+        <MenuItemRow
+          key={item.id}
+          item={item}
+          onPriceUpdated={onPriceUpdated}
+        />
+      ))}
+    </ul>
+  );
 }

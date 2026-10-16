@@ -15,12 +15,12 @@
   "author": "Umar Akhtar",
   "type": "commonjs",
   "main": "index.js",
-
   "jest": {
-  "testPathIgnorePatterns": ["/node_modules/", "/tests/e2e/"]
-},
-
-
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/tests/e2e/"
+    ]
+  },
   "scripts": {
     "test": "jest",
     "start": "node server/server.js",
@@ -40,8 +40,8 @@
     "react-dom": "^19.3.0"
   },
   "devDependencies": {
-    "@babel/core": "^8.0.6",
-    "@babel/preset-env": "^8.0.6",
+    "@babel/core": "^7.29.7",
+    "@babel/preset-env": "^7.29.7",
     "@playwright/test": "^1.63.0",
     "@vitejs/plugin-react": "^6.1.1",
     "babel-jest": "^30.5.2",

@@ -169,6 +169,11 @@ body {
   letter-spacing: 0.04em;
 }
 
+.menu-item .remove-button:hover {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
 /* ---------- Buttons and inputs ---------- */
 
 .menu-item button,

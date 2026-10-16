@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { formatPrice, parsePrice } from '../lib/money.js';
 
-export default function MenuItemRow({ item, onItemUpdated }) {
+export default function MenuItemRow({ item, onItemUpdated, onItemRemoved }) {
   const [isEditing, setIsEditing] = useState(false);
   const [draftPrice, setDraftPrice] = useState('');
   const [error, setError] = useState(null);
@@ -57,6 +57,22 @@ export default function MenuItemRow({ item, onItemUpdated }) {
     onItemUpdated(data);
   }
 
+  async function handleRemove() {
+    if (!window.confirm(`Remove ${item.name} from the menu? This can't be undone.`)) {
+      return;
+    }
+
+    const response = await fetch(`/api/menu/${item.id}`, { method: 'DELETE' });
+
+    if (!response.ok) {
+      const data = await response.json();
+      setError(data.error);
+      return;
+    }
+
+    onItemRemoved(item.id);
+  }
+
   if (isEditing) {
     return (
       <li className="menu-item">
@@ -87,6 +103,9 @@ export default function MenuItemRow({ item, onItemUpdated }) {
         <button type="button" onClick={startEditing}>Edit</button>
         <button type="button" onClick={handleToggleActive}>
           {item.active ? 'Turn off' : 'Turn on'}
+        </button>
+        <button type="button" className="remove-button" onClick={handleRemove}>
+          Remove
         </button>
       </span>
       {error && <p className="form-error">{error}</p>}

@@ -23,7 +23,7 @@ function requireStaff(req, res, next) {
 
 const PORT = process.env.PORT || 3000;
 
-const {getMenuItems, getMenuItem, getCategories, addMenuItem, getCategory, updateMenuItemPrice, updateMenuItemActive, getStaffByUsername} = require('./db.js')
+const {getMenuItems, getMenuItem, getCategories, addMenuItem, getCategory, updateMenuItemPrice, updateMenuItemActive, removeMenuItem, getStaffByUsername} = require('./db.js')
 
 
 app.get('/api/health', (req, res) => {
@@ -80,6 +80,17 @@ if (active !== undefined) {
 }
 res.json(updatedItem);
 })
+
+app.delete('/api/menu/:id', requireStaff, (req, res) => {
+    const id = Number(req.params.id);
+
+    if (!getMenuItem(id)) {
+        return res.status(404).json({ error: 'Menu item does not exist' });
+    }
+
+    removeMenuItem(id);
+    res.status(204).end();
+});
 
 
 

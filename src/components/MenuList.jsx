@@ -1,6 +1,6 @@
 import MenuItemRow from './MenuItemForm.jsx';
 
-export default function MenuList({ items, onItemUpdated }) {
+export default function MenuList({ items, onItemUpdated, onItemRemoved }) {
   return (
     <ul className="menu-list">
       {items.map((item) => (
@@ -8,6 +8,7 @@ export default function MenuList({ items, onItemUpdated }) {
           key={item.id}
           item={item}
           onItemUpdated={onItemUpdated}
+          onItemRemoved={onItemRemoved}
         />
       ))}
     </ul>

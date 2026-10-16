@@ -5,13 +5,13 @@ db.exec('PRAGMA foreign_keys = ON');
 
 function getMenuItems(includeInactive = false) {
     if (includeInactive) {
-        return db.prepare('SELECT * FROM menu_items').all();
+        return db.prepare('SELECT * FROM menu_items WHERE removed = 0').all();
     }
-    return db.prepare('SELECT * FROM menu_items WHERE active = 1').all();
+    return db.prepare('SELECT * FROM menu_items WHERE active = 1 AND removed = 0').all();
 }
 
 function getMenuItem(id) {
-    return db.prepare('SELECT * FROM menu_items WHERE id = ?').get(id);
+    return db.prepare('SELECT * FROM menu_items WHERE id = ? AND removed = 0').get(id);
 }
 
 function getCategories() {
@@ -38,6 +38,10 @@ function updateMenuItemActive(id, active) {
     return getMenuItem(id);
 }
 
+function removeMenuItem(id) {
+    db.prepare('UPDATE menu_items SET removed = 1, active = 0 WHERE id = ?').run(id);
+}
+
 function getStaffByUsername(username) {
     return db.prepare('SELECT * FROM staff WHERE username = ?').get(username);
 }
@@ -51,5 +55,6 @@ module.exports = {
     getCategory,
     updateMenuItemPrice,
     updateMenuItemActive,
+    removeMenuItem,
     getStaffByUsername
 };

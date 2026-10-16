@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { formatPrice, parsePrice } from '../lib/money.js';
 
-export default function MenuItemRow({ item, onPriceUpdated }) {
+export default function MenuItemRow({ item, onItemUpdated }) {
   const [isEditing, setIsEditing] = useState(false);
   const [draftPrice, setDraftPrice] = useState('');
   const [error, setError] = useState(null);
@@ -36,8 +36,25 @@ export default function MenuItemRow({ item, onPriceUpdated }) {
       return;
     }
 
-    onPriceUpdated(data);
+    onItemUpdated(data);
     setIsEditing(false);
+  }
+
+  async function handleToggleActive() {
+    const response = await fetch(`/api/menu/${item.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ active: !item.active }),
+    });
+    const data = await response.json();
+
+    if (!response.ok) {
+      setError(data.error);
+      return;
+    }
+
+    setError(null);
+    onItemUpdated(data);
   }
 
   if (isEditing) {
@@ -60,12 +77,19 @@ export default function MenuItemRow({ item, onPriceUpdated }) {
   }
 
   return (
-    <li className="menu-item">
-      <span className="menu-item-name">{item.name}</span>
+    <li className={item.active ? 'menu-item' : 'menu-item menu-item-off'}>
+      <span className="menu-item-name">
+        {item.name}
+        {!item.active && <span className="off-label">Off</span>}
+      </span>
       <span className="menu-item-actions">
         <span className="menu-item-price">{formatPrice(item.price_pence)}</span>
         <button type="button" onClick={startEditing}>Edit</button>
+        <button type="button" onClick={handleToggleActive}>
+          {item.active ? 'Turn off' : 'Turn on'}
+        </button>
       </span>
+      {error && <p className="form-error">{error}</p>}
     </li>
   );
 }

@@ -11,7 +11,7 @@ const [categories, setCategories] = useState([]);
 const [selectedCategory, setSelectedCategory] = useState(1);
 
 useEffect(() => {
-  fetch('/api/menu')
+  fetch('/api/menu?includeInactive=true')
     .then(response => response.json())
     .then(data => setMenu(data))
     .catch(error => console.error('Error fetching menu:', error));
@@ -33,7 +33,7 @@ return(
     />
   <MenuList
       items={visibleItems}
-      onPriceUpdated={(updatedItem) =>
+      onItemUpdated={(updatedItem) =>
         setMenu(menu.map((item) => (item.id === updatedItem.id ? updatedItem : item)))
       }
     />

@@ -7,7 +7,7 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 
-const {getMenuItems, getMenuItem, getCategories, addMenuItem, getCategory, updateMenuItemPrice} = require('./db.js')
+const {getMenuItems, getMenuItem, getCategories, addMenuItem, getCategory, updateMenuItemPrice, updateMenuItemActive} = require('./db.js')
 
 
 app.get('/api/health', (req, res) => {
@@ -37,17 +37,31 @@ if (!Number.isInteger(categoryId) || !getCategory(categoryId)) {
 
 app.patch('/api/menu/:id', (req, res) => {
 const id = Number(req.params.id);
-const { pricePence } = req.body;
+const { pricePence, active } = req.body;
 
 if (!getMenuItem(id)) {
     return res.status(404).json({ error: 'Menu item does not exist' });
 }
 
-if (!Number.isInteger(pricePence) || pricePence <= 0) {
+if (pricePence === undefined && active === undefined) {
+    return res.status(400).json({ error: 'Send a price or an active setting to change' });
+}
+
+if (pricePence !== undefined && (!Number.isInteger(pricePence) || pricePence <= 0)) {
     return res.status(400).json({ error: 'Price is required and must be an integer and positive' });
 }
 
-const updatedItem = updateMenuItemPrice(id, pricePence);
+if (active !== undefined && typeof active !== 'boolean') {
+    return res.status(400).json({ error: 'Active must be true or false' });
+}
+
+let updatedItem;
+if (pricePence !== undefined) {
+    updatedItem = updateMenuItemPrice(id, pricePence);
+}
+if (active !== undefined) {
+    updatedItem = updateMenuItemActive(id, active);
+}
 res.json(updatedItem);
 })
 
@@ -55,7 +69,8 @@ res.json(updatedItem);
 
 
 app.get('/api/menu', (req, res) => {
-    res.json(getMenuItems())
+    const includeInactive = req.query.includeInactive === 'true'
+    res.json(getMenuItems(includeInactive))
 })
 
 app.get('/api/menu/:id', (req, res) => {

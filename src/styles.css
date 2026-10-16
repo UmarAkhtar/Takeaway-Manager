@@ -133,6 +133,23 @@ body {
   margin: 0;
 }
 
+.menu-item-off .menu-item-name,
+.menu-item-off .menu-item-price {
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+.off-label {
+  margin-left: 8px;
+  padding: 1px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 /* ---------- Buttons and inputs ---------- */
 
 .menu-item button,

@@ -1,13 +1,13 @@
 import MenuItemRow from './MenuItemForm.jsx';
 
-export default function MenuList({ items, onPriceUpdated }) {
+export default function MenuList({ items, onItemUpdated }) {
   return (
     <ul className="menu-list">
       {items.map((item) => (
         <MenuItemRow
           key={item.id}
           item={item}
-          onPriceUpdated={onPriceUpdated}
+          onItemUpdated={onItemUpdated}
         />
       ))}
     </ul>

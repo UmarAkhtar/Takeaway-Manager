@@ -1,5 +1,5 @@
 import { Routes, Route, Link } from 'react-router';
-import Menu from './components/Menu.jsx';
+import StaffPage from './components/StaffPage.jsx';
 import CustomerMenu from './components/CustomerMenu.jsx';
 
 export default function App() {
@@ -16,7 +16,7 @@ return(
       <main className="app-main">
         <Routes>
           <Route path="/" element={<CustomerMenu />} />
-          <Route path="/staff" element={<Menu />} />
+          <Route path="/staff" element={<StaffPage />} />
         </Routes>
       </main>
     </div>

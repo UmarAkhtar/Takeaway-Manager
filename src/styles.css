@@ -268,3 +268,30 @@ body {
 .add-item-form .form-error {
   margin: 0;
 }
+
+/* ---------- Staff bar ---------- */
+
+.staff-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.staff-bar button {
+  padding: 4px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.staff-bar button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}

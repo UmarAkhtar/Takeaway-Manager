@@ -1,11 +1,13 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { db } = require('./db');
+const bcrypt = require('bcryptjs');
 
 db.exec('DROP TABLE IF EXISTS order_items');
 db.exec('DROP TABLE IF EXISTS orders');
 db.exec('DROP TABLE IF EXISTS menu_items');
 db.exec('DROP TABLE IF EXISTS categories');
+db.exec('DROP TABLE IF EXISTS staff');
 
 const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
 db.exec(schema);
@@ -45,6 +47,17 @@ const menuItems = [
 
 for(const item of menuItems) {
     db.prepare('INSERT INTO menu_items (name, price_pence, category_id) VALUES (?, ?, ?)').run(item.name, item.price_pence, item.category_id);
+}
+
+const staffUsername = process.env.STAFF_USERNAME;
+const staffPassword = process.env.STAFF_PASSWORD;
+
+if (staffUsername && staffPassword) {
+  const passwordHash = bcrypt.hashSync(staffPassword, 12);
+  db.prepare('INSERT INTO staff (username, password_hash) VALUES (?, ?)').run(staffUsername, passwordHash);
+  console.log(`Staff account created: ${staffUsername}`);
+} else {
+  console.log('No STAFF_USERNAME / STAFF_PASSWORD set, so no staff account was created');
 }
 
 console.log('Database seeded');

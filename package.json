@@ -23,11 +23,11 @@
   },
   "scripts": {
     "test": "jest",
-    "start": "node server/server.js",
-    "dev:server": "node --watch server/server.js",
+    "start": "node --env-file-if-exists=.env server/server.js",
+    "dev:server": "node --env-file-if-exists=.env --watch server/server.js",
     "dev:client": "vite",
     "build": "vite build",
-    "seed": "node server/seed.js",
+    "seed": "node --env-file-if-exists=.env server/seed.js",
     "dev": "concurrently -n server,client -c blue,green \"npm:dev:server\" \"npm:dev:client\"",
     "test:e2e": "playwright test"
   },
@@ -35,7 +35,9 @@
     "node": ">=24"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "express": "^5.2.1",
+    "express-session": "^1.19.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-router": "^8.4.0"

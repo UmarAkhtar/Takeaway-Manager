@@ -1,7 +1,8 @@
 const { test, expect } = require('@playwright/test');
+const { logIn } = require('./helpers');
 
 test('staff can turn an item off and back on', async ({ page }) => {
-    await page.goto('/staff');
+    await logIn(page);
     await page.getByRole('button', { name: 'Burgers' }).click();
     const row = page.getByRole('listitem').filter({ hasText: 'Ham Burger' });
 

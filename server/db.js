@@ -38,6 +38,10 @@ function updateMenuItemActive(id, active) {
     return getMenuItem(id);
 }
 
+function getStaffByUsername(username) {
+    return db.prepare('SELECT * FROM staff WHERE username = ?').get(username);
+}
+
 module.exports = {
     getMenuItems,
     getMenuItem,
@@ -46,5 +50,6 @@ module.exports = {
     addMenuItem, 
     getCategory,
     updateMenuItemPrice,
-    updateMenuItemActive
+    updateMenuItemActive,
+    getStaffByUsername
 };

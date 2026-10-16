@@ -21,3 +21,9 @@ menu_item_id INTEGER NOT NULL REFERENCES menu_items(id),
 name TEXT NOT NULL,
 price_pence INTEGER NOT NULL CHECK (price_pence >= 0),
 quantity INTEGER NOT NULL CHECK (quantity > 0)) STRICT;
+
+
+CREATE TABLE staff (
+id INTEGER PRIMARY KEY,
+username TEXT NOT NULL UNIQUE,
+password_hash TEXT NOT NULL) STRICT;

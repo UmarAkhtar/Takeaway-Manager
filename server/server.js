@@ -1,13 +1,29 @@
 const express = require('express')
+const session = require('express-session');
+const bcrypt = require('bcryptjs');
 const app = express()
 const path = require('node:path');
 
 app.use(express.static(path.join(__dirname, '..', 'dist')));
 app.use(express.json());
 
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'dev-only-secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { httpOnly: true, sameSite: 'lax', maxAge: 1000 * 60 * 60 * 8 },
+}));
+
+function requireStaff(req, res, next) {
+    if (!req.session.staffId) {
+        return res.status(401).json({ error: 'Please log in' });
+    }
+    next();
+}
+
 const PORT = process.env.PORT || 3000;
 
-const {getMenuItems, getMenuItem, getCategories, addMenuItem, getCategory, updateMenuItemPrice, updateMenuItemActive} = require('./db.js')
+const {getMenuItems, getMenuItem, getCategories, addMenuItem, getCategory, updateMenuItemPrice, updateMenuItemActive, getStaffByUsername} = require('./db.js')
 
 
 app.get('/api/health', (req, res) => {
@@ -16,7 +32,7 @@ app.get('/api/health', (req, res) => {
     res.json(status)
 })
 
-app.post('/api/menu', (req, res) => {
+app.post('/api/menu', requireStaff, (req, res) => {
     const {name, pricePence, categoryId} = req.body;
 
   if (typeof name !== 'string' || name.trim() === '') {
@@ -35,7 +51,7 @@ if (!Number.isInteger(categoryId) || !getCategory(categoryId)) {
     res.status(201).json(newItem);
 })
 
-app.patch('/api/menu/:id', (req, res) => {
+app.patch('/api/menu/:id', requireStaff, (req, res) => {
 const id = Number(req.params.id);
 const { pricePence, active } = req.body;
 
@@ -70,6 +86,9 @@ res.json(updatedItem);
 
 app.get('/api/menu', (req, res) => {
     const includeInactive = req.query.includeInactive === 'true'
+    if (includeInactive && !req.session.staffId) {
+        return res.status(401).json({ error: 'Please log in' });
+    }
     res.json(getMenuItems(includeInactive))
 })
 
@@ -85,6 +104,42 @@ app.get('/api/menu/:id', (req, res) => {
 app.get('/api/categories', (req, res) => {
     res.json(getCategories())
 })
+
+app.post('/api/login', async (req, res) => {
+    const { username, password } = req.body;
+
+    if (typeof username !== 'string' || typeof password !== 'string') {
+        return res.status(401).json({ error: 'Wrong username or password' });
+    }
+
+    const staff = getStaffByUsername(username);
+    if (!staff || !(await bcrypt.compare(password, staff.password_hash))) {
+        return res.status(401).json({ error: 'Wrong username or password' });
+    }
+
+    req.session.regenerate((err) => {
+        if (err) {
+            return res.status(500).json({ error: 'Could not log in' });
+        }
+        req.session.staffId = staff.id;
+        req.session.username = staff.username;
+        res.json({ username: staff.username });
+    });
+});
+
+app.post('/api/logout', (req, res) => {
+    req.session.destroy(() => {
+        res.clearCookie('connect.sid');
+        res.json({ loggedOut: true });
+    });
+});
+
+app.get('/api/me', (req, res) => {
+    if (!req.session.staffId) {
+        return res.status(401).json({ error: 'Not logged in' });
+    }
+    res.json({ username: req.session.username });
+});
 
 app.get('/{*splat}', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'));

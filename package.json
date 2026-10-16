@@ -27,7 +27,9 @@
     "dev:server": "node --env-file-if-exists=.env --watch server/server.js",
     "dev:client": "vite",
     "build": "vite build",
+    "migrate": "node --env-file-if-exists=.env server/migrate.js",
     "seed": "node --env-file-if-exists=.env server/seed.js",
+    "create-staff": "node --env-file-if-exists=.env server/create-staff.js",
     "dev": "concurrently -n server,client -c blue,green \"npm:dev:server\" \"npm:dev:client\"",
     "test:e2e": "playwright test"
   },
@@ -38,6 +40,7 @@
     "bcryptjs": "^3.0.3",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
+    "pg": "^8.23.1",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-router": "^8.4.0"

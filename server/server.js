@@ -32,7 +32,7 @@ app.get('/api/health', (req, res) => {
     res.json(status)
 })
 
-app.post('/api/menu', requireStaff, (req, res) => {
+app.post('/api/menu', requireStaff, async (req, res) => {
     const {name, pricePence, categoryId} = req.body;
 
   if (typeof name !== 'string' || name.trim() === '') {
@@ -43,19 +43,19 @@ if (!Number.isInteger(pricePence) || pricePence <= 0) {
     return res.status(400).json({ error: 'Price is required and must be an integer and positive' });
 }
 
-if (!Number.isInteger(categoryId) || !getCategory(categoryId)) {
+if (!Number.isInteger(categoryId) || !(await getCategory(categoryId))) {
     return res.status(400).json({ error: 'Category ID is required and must be a valid category ID' });
 }
 
-    const newItem = addMenuItem(name.trim(), pricePence, categoryId);
+    const newItem = await addMenuItem(name.trim(), pricePence, categoryId);
     res.status(201).json(newItem);
 })
 
-app.patch('/api/menu/:id', requireStaff, (req, res) => {
+app.patch('/api/menu/:id', requireStaff, async (req, res) => {
 const id = Number(req.params.id);
 const { pricePence, active } = req.body;
 
-if (!getMenuItem(id)) {
+if (!(await getMenuItem(id))) {
     return res.status(404).json({ error: 'Menu item does not exist' });
 }
 
@@ -73,47 +73,47 @@ if (active !== undefined && typeof active !== 'boolean') {
 
 let updatedItem;
 if (pricePence !== undefined) {
-    updatedItem = updateMenuItemPrice(id, pricePence);
+    updatedItem = await updateMenuItemPrice(id, pricePence);
 }
 if (active !== undefined) {
-    updatedItem = updateMenuItemActive(id, active);
+    updatedItem = await updateMenuItemActive(id, active);
 }
 res.json(updatedItem);
 })
 
-app.delete('/api/menu/:id', requireStaff, (req, res) => {
+app.delete('/api/menu/:id', requireStaff, async (req, res) => {
     const id = Number(req.params.id);
 
-    if (!getMenuItem(id)) {
+    if (!(await getMenuItem(id))) {
         return res.status(404).json({ error: 'Menu item does not exist' });
     }
 
-    removeMenuItem(id);
+    await removeMenuItem(id);
     res.status(204).end();
 });
 
 
 
 
-app.get('/api/menu', (req, res) => {
+app.get('/api/menu', async (req, res) => {
     const includeInactive = req.query.includeInactive === 'true'
     if (includeInactive && !req.session.staffId) {
         return res.status(401).json({ error: 'Please log in' });
     }
-    res.json(getMenuItems(includeInactive))
+    res.json(await getMenuItems(includeInactive))
 })
 
-app.get('/api/menu/:id', (req, res) => {
+app.get('/api/menu/:id', async (req, res) => {
     const id = Number(req.params.id)
-    const item = getMenuItem(id);
+    const item = await getMenuItem(id);
     if(!item){
         return res.status(404).json({error: 'Menu item does not exist'});
     }
     res.json(item)
 })
 
-app.get('/api/categories', (req, res) => {
-    res.json(getCategories())
+app.get('/api/categories', async (req, res) => {
+    res.json(await getCategories())
 })
 
 app.post('/api/login', async (req, res) => {
@@ -123,7 +123,7 @@ app.post('/api/login', async (req, res) => {
         return res.status(401).json({ error: 'Wrong username or password' });
     }
 
-    const staff = getStaffByUsername(username);
+    const staff = await getStaffByUsername(username);
     if (!staff || !(await bcrypt.compare(password, staff.password_hash))) {
         return res.status(401).json({ error: 'Wrong username or password' });
     }

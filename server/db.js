@@ -1,58 +1,73 @@
-const path = require('node:path');
-const { DatabaseSync } = require('node:sqlite');
-const db = new DatabaseSync(path.join(__dirname, '..', 'practice.db'));
-db.exec('PRAGMA foreign_keys = ON');
+const { Pool } = require('pg');
 
-function getMenuItems(includeInactive = false) {
-    if (includeInactive) {
-        return db.prepare('SELECT * FROM menu_items WHERE removed = 0').all();
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
+async function getMenuItems(includeInactive = false) {
+    const sql = includeInactive
+        ? 'SELECT * FROM menu_items WHERE removed = false ORDER BY id'
+        : 'SELECT * FROM menu_items WHERE active = true AND removed = false ORDER BY id';
+    const result = await pool.query(sql);
+    return result.rows;
+}
+
+async function getMenuItem(id) {
+    if (!Number.isInteger(id)) {
+        return undefined;
     }
-    return db.prepare('SELECT * FROM menu_items WHERE active = 1 AND removed = 0').all();
+    const result = await pool.query('SELECT * FROM menu_items WHERE id = $1 AND removed = false', [id]);
+    return result.rows[0];
 }
 
-function getMenuItem(id) {
-    return db.prepare('SELECT * FROM menu_items WHERE id = ? AND removed = 0').get(id);
+async function getCategories() {
+    const result = await pool.query('SELECT * FROM categories ORDER BY id');
+    return result.rows;
 }
 
-function getCategories() {
-    return db.prepare('SELECT * FROM categories').all();
+async function getCategory(id) {
+    const result = await pool.query('SELECT * FROM categories WHERE id = $1', [id]);
+    return result.rows[0];
 }
 
-function getCategory(id) {
-    return db.prepare('SELECT * FROM categories WHERE id = ?').get(id);
+async function addMenuItem(name, pricePence, categoryId) {
+    const result = await pool.query(
+        'INSERT INTO menu_items (name, price_pence, category_id) VALUES ($1, $2, $3) RETURNING *',
+        [name, pricePence, categoryId]
+    );
+    return result.rows[0];
 }
 
-function addMenuItem(name, pricePence, categoryId) {
-    const result = db.prepare('INSERT INTO menu_items (name, price_pence, category_id) VALUES (?, ?, ?)').run(name, pricePence, categoryId);
-
-    return getMenuItem(result.lastInsertRowid);
+async function updateMenuItemPrice(id, pricePence) {
+    const result = await pool.query(
+        'UPDATE menu_items SET price_pence = $1 WHERE id = $2 RETURNING *',
+        [pricePence, id]
+    );
+    return result.rows[0];
 }
 
-function updateMenuItemPrice(id, pricePence) {
-    db.prepare('UPDATE menu_items SET price_pence = ? WHERE id = ?').run(pricePence, id);
-    return getMenuItem(id);
+async function updateMenuItemActive(id, active) {
+    const result = await pool.query(
+        'UPDATE menu_items SET active = $1 WHERE id = $2 RETURNING *',
+        [active, id]
+    );
+    return result.rows[0];
 }
 
-function updateMenuItemActive(id, active) {
-    db.prepare('UPDATE menu_items SET active = ? WHERE id = ?').run(active ? 1 : 0, id);
-    return getMenuItem(id);
+async function removeMenuItem(id) {
+    await pool.query('UPDATE menu_items SET removed = true, active = false WHERE id = $1', [id]);
 }
 
-function removeMenuItem(id) {
-    db.prepare('UPDATE menu_items SET removed = 1, active = 0 WHERE id = ?').run(id);
-}
-
-function getStaffByUsername(username) {
-    return db.prepare('SELECT * FROM staff WHERE username = ?').get(username);
+async function getStaffByUsername(username) {
+    const result = await pool.query('SELECT * FROM staff WHERE username = $1', [username]);
+    return result.rows[0];
 }
 
 module.exports = {
+    pool,
     getMenuItems,
     getMenuItem,
     getCategories,
-    db,
-    addMenuItem, 
     getCategory,
+    addMenuItem,
     updateMenuItemPrice,
     updateMenuItemActive,
     removeMenuItem,

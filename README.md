@@ -27,7 +27,7 @@ A Takeaway menu and management app based on my experience managing a takeaway.
 
 ## Running it locally
 
-You'll need [Node.js](https://nodejs.org/) 24 or newer.
+You'll need [Node.js](https://nodejs.org/) 24 or newer and [PostgreSQL](https://www.postgresql.org/download/) 18.
 
 1. Clone the repo and install the packages:
 
@@ -37,19 +37,23 @@ You'll need [Node.js](https://nodejs.org/) 24 or newer.
    npm install
    ```
 
-2. Create the database and load the menu:
+2. Create two databases, `takeaway_dev` and `takeaway_test`. Then copy `.env.example` to `.env` and fill in your own values.
+
+3. Set up the database, load the sample menu and create your staff login:
 
    ```bash
+   npm run migrate
    npm run seed
+   npm run create-staff
    ```
 
-3. Start the server and the frontend together:
+4. Start the server and the frontend together:
 
    ```bash
    npm run dev
    ```
 
-4. Open [http://localhost:5173](http://localhost:5173) in your browser.
+5. Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 To run it the way it runs in production, as one server with no Vite:
 

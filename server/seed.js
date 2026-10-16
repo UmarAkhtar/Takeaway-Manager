@@ -1,23 +1,6 @@
-const fs = require('node:fs');
-const path = require('node:path');
-const { db } = require('./db');
-const bcrypt = require('bcryptjs');
-
-db.exec('DROP TABLE IF EXISTS order_items');
-db.exec('DROP TABLE IF EXISTS orders');
-db.exec('DROP TABLE IF EXISTS menu_items');
-db.exec('DROP TABLE IF EXISTS categories');
-db.exec('DROP TABLE IF EXISTS staff');
-
-const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
-db.exec(schema);
+const { pool } = require('./db');
 
 const categories = ['Curries', 'Sundries', 'Burgers', 'Drinks'];
-const insertCategory = db.prepare('INSERT INTO categories (name) VALUES (?)');
-
-for (const name of categories) {
-  insertCategory.run(name);
-}
 
 const menuItems = [
   { name: 'Chicken Tikka Masala', price_pence: 895, category_id: 1 },
@@ -45,19 +28,30 @@ const menuItems = [
   { name: 'Sprite', price_pence: 80, category_id: 4 }
 ];
 
-for(const item of menuItems) {
-    db.prepare('INSERT INTO menu_items (name, price_pence, category_id) VALUES (?, ?, ?)').run(item.name, item.price_pence, item.category_id);
+async function seed() {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('Refusing to seed: this would wipe the live menu');
+  }
+
+  await pool.query('TRUNCATE order_items, orders, menu_items, categories RESTART IDENTITY CASCADE');
+
+  for (const name of categories) {
+    await pool.query('INSERT INTO categories (name) VALUES ($1)', [name]);
+  }
+
+  for (const item of menuItems) {
+    await pool.query(
+      'INSERT INTO menu_items (name, price_pence, category_id) VALUES ($1, $2, $3)',
+      [item.name, item.price_pence, item.category_id]
+    );
+  }
+
+  console.log('Database seeded');
 }
 
-const staffUsername = process.env.STAFF_USERNAME;
-const staffPassword = process.env.STAFF_PASSWORD;
-
-if (staffUsername && staffPassword) {
-  const passwordHash = bcrypt.hashSync(staffPassword, 12);
-  db.prepare('INSERT INTO staff (username, password_hash) VALUES (?, ?)').run(staffUsername, passwordHash);
-  console.log(`Staff account created: ${staffUsername}`);
-} else {
-  console.log('No STAFF_USERNAME / STAFF_PASSWORD set, so no staff account was created');
-}
-
-console.log('Database seeded');
+seed()
+  .catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  })
+  .finally(() => pool.end());

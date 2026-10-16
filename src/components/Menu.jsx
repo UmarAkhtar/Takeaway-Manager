@@ -36,6 +36,9 @@ return(
       onItemUpdated={(updatedItem) =>
         setMenu(menu.map((item) => (item.id === updatedItem.id ? updatedItem : item)))
       }
+      onItemRemoved={(removedId) =>
+        setMenu(menu.filter((item) => item.id !== removedId))
+      }
     />
     <AddItemForm
   categories={categories}

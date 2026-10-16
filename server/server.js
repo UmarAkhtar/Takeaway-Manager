@@ -86,6 +86,10 @@ app.get('/api/categories', (req, res) => {
     res.json(getCategories())
 })
 
+app.get('/{*splat}', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'));
+});
+
 app.listen(PORT, () => {
    console.log(`Server running on port ${PORT}`);
 })

@@ -3,7 +3,10 @@ const { DatabaseSync } = require('node:sqlite');
 const db = new DatabaseSync(path.join(__dirname, '..', 'practice.db'));
 db.exec('PRAGMA foreign_keys = ON');
 
-function getMenuItems() {
+function getMenuItems(includeInactive = false) {
+    if (includeInactive) {
+        return db.prepare('SELECT * FROM menu_items').all();
+    }
     return db.prepare('SELECT * FROM menu_items WHERE active = 1').all();
 }
 
@@ -30,6 +33,11 @@ function updateMenuItemPrice(id, pricePence) {
     return getMenuItem(id);
 }
 
+function updateMenuItemActive(id, active) {
+    db.prepare('UPDATE menu_items SET active = ? WHERE id = ?').run(active ? 1 : 0, id);
+    return getMenuItem(id);
+}
+
 module.exports = {
     getMenuItems,
     getMenuItem,
@@ -37,5 +45,6 @@ module.exports = {
     db,
     addMenuItem, 
     getCategory,
-    updateMenuItemPrice
+    updateMenuItemPrice,
+    updateMenuItemActive
 };

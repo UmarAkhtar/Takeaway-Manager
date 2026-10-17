@@ -87,9 +87,79 @@ async function createOrder(lines) {
     }
 }
 
+const MINUTES_UNTIL_READY = 40;
+
+// Any order waiting longer than the cooking time counts as ready
+async function markOldOrdersReady() {
+    await pool.query(
+        `UPDATE orders SET status = 'ready'
+         WHERE status = 'pending' AND created_at <= now() - make_interval(mins => $1)`,
+        [MINUTES_UNTIL_READY]
+    );
+}
+
+const ORDER_COLUMNS = `
+    orders.id AS order_id,
+    orders.status,
+    orders.created_at,
+    orders.created_at + make_interval(mins => $1) AS ready_at,
+    order_items.name,
+    order_items.price_pence,
+    order_items.quantity`;
+
+// The database gives one row per item, so join those back up into one entry per order
+function groupOrderRows(rows) {
+    const orders = new Map();
+    for (const row of rows) {
+        if (!orders.has(row.order_id)) {
+            orders.set(row.order_id, {
+                id: row.order_id,
+                status: row.status,
+                createdAt: row.created_at,
+                readyAt: row.ready_at,
+                totalPence: 0,
+                items: [],
+            });
+        }
+        const order = orders.get(row.order_id);
+        order.items.push({ name: row.name, quantity: row.quantity });
+        order.totalPence += row.price_pence * row.quantity;
+    }
+    return [...orders.values()];
+}
+
+// Orders still waiting to be cooked, oldest first, each with its own list of items
+async function getPendingOrders() {
+    await markOldOrdersReady();
+    const result = await pool.query(
+        `SELECT ${ORDER_COLUMNS}
+         FROM orders
+         JOIN order_items ON order_items.order_id = orders.id
+         WHERE orders.status = 'pending'
+         ORDER BY orders.created_at, orders.id, order_items.id`,
+        [MINUTES_UNTIL_READY]
+    );
+    return groupOrderRows(result.rows);
+}
+
+
+// Only a pending order can be marked ready, so nothing comes back for unknown or finished ones
+async function markOrderReady(id) {
+    if (!Number.isInteger(id)) {
+        return undefined;
+    }
+    const result = await pool.query(
+        `UPDATE orders SET status = 'ready' WHERE id = $1 AND status = 'pending' RETURNING *`,
+        [id]
+    );
+    return result.rows[0];
+}
+
 module.exports = {
     pool,
     createOrder,
+    getPendingOrders,
+    markOrderReady,
     getMenuItems,
     getMenuItem,
     getCategories,

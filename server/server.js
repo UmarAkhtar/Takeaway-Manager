@@ -34,7 +34,7 @@ function requireStaff(req, res, next) {
 
 const PORT = process.env.PORT || 3000;
 
-const {getMenuItems, getMenuItem, getCategories, addMenuItem, getCategory, updateMenuItemPrice, updateMenuItemActive, removeMenuItem, getStaffByUsername, createOrder} = require('./db.js')
+const {getMenuItems, getMenuItem, getCategories, addMenuItem, getCategory, updateMenuItemPrice, updateMenuItemActive, removeMenuItem, getStaffByUsername, createOrder, getPendingOrders, markOrderReady} = require('./db.js')
 const { checkOrderItems } = require('./orders.js');
 
 
@@ -183,6 +183,22 @@ app.post('/api/orders', async (req, res) => {
     const order = await createOrder(lines);
     const totalPence = lines.reduce((sum, line) => sum + line.pricePence * line.quantity, 0);
     res.status(201).json({ id: order.id, totalPence, items: lines });
+});
+
+app.get('/api/orders', requireStaff, async (req, res) => {
+    res.json(await getPendingOrders());
+});
+
+app.patch('/api/orders/:id', requireStaff, async (req, res) => {
+    if (req.body?.status !== 'ready') {
+        return res.status(400).json({ error: 'Orders can only be marked ready' });
+    }
+
+    const order = await markOrderReady(Number(req.params.id));
+    if (!order) {
+        return res.status(404).json({ error: 'No waiting order with that number' });
+    }
+    res.json(order);
 });
 
 app.get('/{*splat}', (req, res) => {

@@ -498,3 +498,93 @@ body {
 .my-orders .basket-total {
   margin: 0;
 }
+
+/* ---------- End of day takings ---------- */
+
+.takings-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.takings-header h2 {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.takings-header label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.takings-header input {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+}
+
+.takings-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.takings-summary div {
+  display: flex;
+  flex-direction: column;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.takings-summary span {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.takings-summary strong {
+  font-size: 1.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.takings-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-variant-numeric: tabular-nums;
+}
+
+.takings-table th,
+.takings-table td {
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+}
+
+.takings-table th:first-child,
+.takings-table td:first-child {
+  text-align: left;
+}
+
+.takings-table th {
+  color: var(--muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.takings-table tbody tr:last-child td {
+  border-bottom: none;
+}

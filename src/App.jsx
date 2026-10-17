@@ -4,6 +4,7 @@ import CustomerMenu from './components/CustomerMenu.jsx';
 import KitchenScreen from './components/KitchenScreen.jsx';
 import MyOrders from './components/MyOrders.jsx';
 import StaffOnly from './components/StaffOnly.jsx';
+import Takings from './components/Takings.jsx';
 
 export default function App() {
 
@@ -16,6 +17,7 @@ return(
           <Link to="/my-orders">My orders</Link>
           <Link to="/staff">Staff</Link>
           <Link to="/kitchen">Kitchen</Link>
+          <Link to="/takings">Takings</Link>
         </nav>
       </header>
       <main className="app-main">
@@ -24,6 +26,7 @@ return(
           <Route path="/my-orders" element={<MyOrders />} />
           <Route path="/staff" element={<StaffPage />} />
           <Route path="/kitchen" element={<StaffOnly><KitchenScreen /></StaffOnly>} />
+          <Route path="/takings" element={<StaffOnly><Takings /></StaffOnly>} />
         </Routes>
       </main>
     </div>

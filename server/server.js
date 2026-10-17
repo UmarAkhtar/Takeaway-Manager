@@ -34,8 +34,9 @@ function requireStaff(req, res, next) {
 
 const PORT = process.env.PORT || 3000;
 
-const {getMenuItems, getMenuItem, getCategories, addMenuItem, getCategory, updateMenuItemPrice, updateMenuItemActive, removeMenuItem, getStaffByUsername, createOrder, getPendingOrders, getOrdersByIds, markOrderReady} = require('./db.js')
+const {getMenuItems, getMenuItem, getCategories, addMenuItem, getCategory, updateMenuItemPrice, updateMenuItemActive, removeMenuItem, getStaffByUsername, createOrder, getPendingOrders, getOrdersByIds, markOrderReady, getTakings} = require('./db.js')
 const { checkOrderItems } = require('./orders.js');
+const { isValidDate } = require('./takings.js');
 
 
 app.get('/api/health', (req, res) => {
@@ -207,6 +208,14 @@ app.patch('/api/orders/:id', requireStaff, async (req, res) => {
         return res.status(404).json({ error: 'No waiting order with that number' });
     }
     res.json(order);
+});
+
+app.get('/api/takings', requireStaff, async (req, res) => {
+    const { date } = req.query;
+    if (date !== undefined && !isValidDate(date)) {
+        return res.status(400).json({ error: 'Date must be a real day, written like 2026-10-17' });
+    }
+    res.json(await getTakings(date));
 });
 
 app.get('/{*splat}', (req, res) => {

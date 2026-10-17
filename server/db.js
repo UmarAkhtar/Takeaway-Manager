@@ -159,6 +159,52 @@ async function getOrdersByIds(ids) {
     return groupOrderRows(result.rows);
 }
 
+// The shop is in the UK, so a day runs from midnight to midnight UK time
+const SHOP_TIME_ZONE = 'Europe/London';
+
+// Everything taken on one day: how many orders, the total, and how much of each item sold.
+// With no date given it uses today.
+async function getTakings(date) {
+    const dayResult = await pool.query(
+        `SELECT COALESCE($1::date, (now() AT TIME ZONE $2)::date)::text AS day`,
+        [date || null, SHOP_TIME_ZONE]
+    );
+    const day = dayResult.rows[0].day;
+
+    const ordersOnDay = `
+        FROM orders
+        JOIN order_items ON order_items.order_id = orders.id
+        WHERE (orders.created_at AT TIME ZONE $2)::date = $1::date`;
+
+    const totals = await pool.query(
+        `SELECT COUNT(DISTINCT orders.id)::int AS order_count,
+                COALESCE(SUM(order_items.price_pence * order_items.quantity), 0)::int AS total_pence
+         ${ordersOnDay}`,
+        [day, SHOP_TIME_ZONE]
+    );
+
+    const items = await pool.query(
+        `SELECT order_items.name,
+                SUM(order_items.quantity)::int AS quantity,
+                SUM(order_items.price_pence * order_items.quantity)::int AS total_pence
+         ${ordersOnDay}
+         GROUP BY order_items.name
+         ORDER BY total_pence DESC, order_items.name`,
+        [day, SHOP_TIME_ZONE]
+    );
+
+    return {
+        date: day,
+        orderCount: totals.rows[0].order_count,
+        totalPence: totals.rows[0].total_pence,
+        items: items.rows.map(row => ({
+            name: row.name,
+            quantity: row.quantity,
+            totalPence: row.total_pence,
+        })),
+    };
+}
+
 // Only a pending order can be marked ready, so nothing comes back for unknown or finished ones
 async function markOrderReady(id) {
     if (!Number.isInteger(id)) {
@@ -176,6 +222,7 @@ module.exports = {
     createOrder,
     getPendingOrders,
     getOrdersByIds,
+    getTakings,
     markOrderReady,
     getMenuItems,
     getMenuItem,

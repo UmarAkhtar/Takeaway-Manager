@@ -1,17 +1,28 @@
 const express = require('express')
 const session = require('express-session');
+const PgSession = require('connect-pg-simple')(session);
 const bcrypt = require('bcryptjs');
 const app = express()
 const path = require('node:path');
+const { pool } = require('./db.js');
+
+// Render sits in front of the app, so trust it to say the visit was over https
+app.set('trust proxy', 1);
 
 app.use(express.static(path.join(__dirname, '..', 'dist')));
 app.use(express.json());
 
 app.use(session({
+    store: new PgSession({ pool, tableName: 'session' }),
     secret: process.env.SESSION_SECRET || 'dev-only-secret',
     resave: false,
     saveUninitialized: false,
-    cookie: { httpOnly: true, sameSite: 'lax', maxAge: 1000 * 60 * 60 * 8 },
+    cookie: {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 1000 * 60 * 60 * 8,
+    },
 }));
 
 function requireStaff(req, res, next) {

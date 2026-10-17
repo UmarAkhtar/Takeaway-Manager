@@ -1,6 +1,8 @@
 import { Routes, Route, Link } from 'react-router';
 import StaffPage from './components/StaffPage.jsx';
 import CustomerMenu from './components/CustomerMenu.jsx';
+import KitchenScreen from './components/KitchenScreen.jsx';
+import StaffOnly from './components/StaffOnly.jsx';
 
 export default function App() {
 
@@ -11,12 +13,14 @@ return(
         <nav className="app-nav">
           <Link to="/">Menu</Link>
           <Link to="/staff">Staff</Link>
+          <Link to="/kitchen">Kitchen</Link>
         </nav>
       </header>
       <main className="app-main">
         <Routes>
           <Route path="/" element={<CustomerMenu />} />
           <Route path="/staff" element={<StaffPage />} />
+          <Route path="/kitchen" element={<StaffOnly><KitchenScreen /></StaffOnly>} />
         </Routes>
       </main>
     </div>

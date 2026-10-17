@@ -142,6 +142,22 @@ async function getPendingOrders() {
     return groupOrderRows(result.rows);
 }
 
+// The orders with these numbers, newest first, used for a customer's own past orders
+async function getOrdersByIds(ids) {
+    if (ids.length === 0) {
+        return [];
+    }
+    await markOldOrdersReady();
+    const result = await pool.query(
+        `SELECT ${ORDER_COLUMNS}
+         FROM orders
+         JOIN order_items ON order_items.order_id = orders.id
+         WHERE orders.id = ANY($2)
+         ORDER BY orders.created_at DESC, orders.id DESC, order_items.id`,
+        [MINUTES_UNTIL_READY, ids]
+    );
+    return groupOrderRows(result.rows);
+}
 
 // Only a pending order can be marked ready, so nothing comes back for unknown or finished ones
 async function markOrderReady(id) {
@@ -159,6 +175,7 @@ module.exports = {
     pool,
     createOrder,
     getPendingOrders,
+    getOrdersByIds,
     markOrderReady,
     getMenuItems,
     getMenuItem,

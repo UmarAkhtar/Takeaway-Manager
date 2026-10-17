@@ -466,3 +466,35 @@ body {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
+
+/* ---------- My orders ---------- */
+
+.my-orders h2 {
+  margin: 0 0 12px;
+  font-size: 1.125rem;
+}
+
+.my-orders a {
+  color: var(--accent);
+}
+
+.order-status {
+  margin: 0;
+  color: var(--accent);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.order-status-ready {
+  color: #15803d;
+}
+
+@media (prefers-color-scheme: dark) {
+  .order-status-ready {
+    color: #4ade80;
+  }
+}
+
+.my-orders .basket-total {
+  margin: 0;
+}

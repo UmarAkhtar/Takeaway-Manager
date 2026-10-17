@@ -34,7 +34,7 @@ function requireStaff(req, res, next) {
 
 const PORT = process.env.PORT || 3000;
 
-const {getMenuItems, getMenuItem, getCategories, addMenuItem, getCategory, updateMenuItemPrice, updateMenuItemActive, removeMenuItem, getStaffByUsername, createOrder, getPendingOrders, markOrderReady} = require('./db.js')
+const {getMenuItems, getMenuItem, getCategories, addMenuItem, getCategory, updateMenuItemPrice, updateMenuItemActive, removeMenuItem, getStaffByUsername, createOrder, getPendingOrders, getOrdersByIds, markOrderReady} = require('./db.js')
 const { checkOrderItems } = require('./orders.js');
 
 
@@ -181,8 +181,16 @@ app.post('/api/orders', async (req, res) => {
     }
 
     const order = await createOrder(lines);
+
+    // Remember the order in this visitor's session so they can see it on My orders
+    req.session.orderIds = [...(req.session.orderIds || []), order.id];
+
     const totalPence = lines.reduce((sum, line) => sum + line.pricePence * line.quantity, 0);
     res.status(201).json({ id: order.id, totalPence, items: lines });
+});
+
+app.get('/api/my-orders', async (req, res) => {
+    res.json(await getOrdersByIds(req.session.orderIds || []));
 });
 
 app.get('/api/orders', requireStaff, async (req, res) => {

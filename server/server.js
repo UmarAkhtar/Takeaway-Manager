@@ -34,7 +34,8 @@ function requireStaff(req, res, next) {
 
 const PORT = process.env.PORT || 3000;
 
-const {getMenuItems, getMenuItem, getCategories, addMenuItem, getCategory, updateMenuItemPrice, updateMenuItemActive, removeMenuItem, getStaffByUsername} = require('./db.js')
+const {getMenuItems, getMenuItem, getCategories, addMenuItem, getCategory, updateMenuItemPrice, updateMenuItemActive, removeMenuItem, getStaffByUsername, createOrder} = require('./db.js')
+const { checkOrderItems } = require('./orders.js');
 
 
 app.get('/api/health', (req, res) => {
@@ -161,6 +162,27 @@ app.get('/api/me', (req, res) => {
         return res.status(401).json({ error: 'Not logged in' });
     }
     res.json({ username: req.session.username });
+});
+
+app.post('/api/orders', async (req, res) => {
+    const checked = checkOrderItems(req.body?.items);
+    if (checked.error) {
+        return res.status(400).json({ error: checked.error });
+    }
+
+    // Look up each price ourselves, so the browser can never set what it pays
+    const lines = [];
+    for (const { menuItemId, quantity } of checked.items) {
+        const menuItem = await getMenuItem(menuItemId);
+        if (!menuItem || !menuItem.active) {
+            return res.status(400).json({ error: 'One of the items is no longer available' });
+        }
+        lines.push({ menuItemId, quantity, name: menuItem.name, pricePence: menuItem.price_pence });
+    }
+
+    const order = await createOrder(lines);
+    const totalPence = lines.reduce((sum, line) => sum + line.pricePence * line.quantity, 0);
+    res.status(201).json({ id: order.id, totalPence, items: lines });
 });
 
 app.get('/{*splat}', (req, res) => {

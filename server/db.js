@@ -61,8 +61,35 @@ async function getStaffByUsername(username) {
     return result.rows[0];
 }
 
+// Saves the order and all its lines together, or nothing at all if anything fails
+async function createOrder(lines) {
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+        const orderResult = await client.query('INSERT INTO orders DEFAULT VALUES RETURNING *');
+        const order = orderResult.rows[0];
+
+        for (const line of lines) {
+            await client.query(
+                `INSERT INTO order_items (order_id, menu_item_id, name, price_pence, quantity)
+                 VALUES ($1, $2, $3, $4, $5)`,
+                [order.id, line.menuItemId, line.name, line.pricePence, line.quantity]
+            );
+        }
+
+        await client.query('COMMIT');
+        return order;
+    } catch (error) {
+        await client.query('ROLLBACK');
+        throw error;
+    } finally {
+        client.release();
+    }
+}
+
 module.exports = {
     pool,
+    createOrder,
     getMenuItems,
     getMenuItem,
     getCategories,

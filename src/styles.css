@@ -300,3 +300,97 @@ body {
   border-color: var(--accent);
   color: var(--accent);
 }
+
+/* ---------- Basket and orders ---------- */
+
+.basket,
+.order-placed {
+  margin-top: 16px;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.basket h2,
+.order-placed h2 {
+  margin: 0 0 8px;
+  font-size: 1.125rem;
+}
+
+.basket-empty {
+  margin: 0;
+  color: var(--muted);
+}
+
+.basket-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.basket-line {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 8px 0;
+}
+
+.basket-line + .basket-line {
+  border-top: 1px solid var(--border);
+}
+
+.basket-line-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.basket-line-actions button {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.basket-line-actions button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.basket-total {
+  display: flex;
+  justify-content: space-between;
+  margin: 12px 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.place-order-button,
+.order-placed button {
+  padding: 10px 20px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--accent-text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.place-order-button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.basket .form-error {
+  margin: 0 0 12px;
+}

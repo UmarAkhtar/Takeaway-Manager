@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router';
 import CategoryTabs from './CategoryTabs.jsx';
 import Basket from './Basket.jsx';
 import { formatPrice } from '../lib/money.js';
@@ -73,6 +74,7 @@ if (placedOrder) {
     <div className="order-placed">
       <h2>Thanks! Your order number is {placedOrder.id}</h2>
       <p>Total to pay when you collect: {formatPrice(placedOrder.totalPence)}</p>
+      <p><Link to="/my-orders">Track it on My orders</Link></p>
       <button onClick={() => setPlacedOrder(null)}>Start a new order</button>
     </div>
   );
